@@ -5,9 +5,7 @@ This repository adds a point defect as a pseudo-particle into a molecular dynami
 To install the library, run:
 
 ```sh
-git clone github.com/MUEXLY/add_pd
-cd add_pd
-pip install .
+pip install git+https://github.com/MUEXLY/add_pd
 ```
 
 At which point, you can run the command-line interface `add-pd`:
