@@ -5,13 +5,6 @@ from typing import Callable, Optional
 import ovito
 from ovito.modifiers import PolyhedralTemplateMatchingModifier, ExpressionSelectionModifier, ClusterAnalysisModifier, WrapPeriodicImagesModifier, DeleteSelectedModifier
 
-
-class DefectType(Enum):
-
-    VACANCY = 1
-    SELF_INTERSTITIAL = 2
-
-
 def add_particles_in_clusters(num_clusters: int = 1) -> Callable:
 
     def wrapper(frame: int, data: ovito.data.DataCollection) -> None:
@@ -45,7 +38,7 @@ def add_point_defect(pipeline: ovito.pipeline.Pipeline, rmsd_cutoff: float) -> N
     pipeline.modifiers.append(WrapPeriodicImagesModifier())
 
 
-def new_run(input_path: Path, output_path: Path, defect: DefectType, rmsd_cutoff: float, export_kwargs: Optional[dict] = None) -> None:
+def new_run(input_path: Path, output_path: Path, rmsd_cutoff: float, export_kwargs: Optional[dict] = None) -> None:
 
     if not export_kwargs:
         export_kwargs = {
@@ -61,14 +54,5 @@ def new_run(input_path: Path, output_path: Path, defect: DefectType, rmsd_cutoff
 
     pipeline = ovito.io.import_file(input_path)
     add_point_defect(pipeline, rmsd_cutoff)
-
-    # need to delete two particles closest to defect if self-interstitial
-    if defect == DefectType.VACANCY:
-        pass
-    elif defect == DefectType.SELF_INTERSTITIAL:
-        pipeline.modifiers.append(select_n_closest(particle_index=0, n=2))
-        pipeline.modifiers.append(DeleteSelectedModifier())
-    else:
-        raise ValueError("invalid defect type")
 
     ovito.io.export_file(pipeline, output_path, multiple_frames=True, **export_kwargs)
